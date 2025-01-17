@@ -64,7 +64,7 @@ func Callback[LOG logger.Logger](option ...func(req LOG) (laReq LogAddReq)) func
 	}
 }
 
-func GetFieldsFromTag(struct0 any) (fields []Field) {
+func GetFieldsFromTag(struct0 any, defaultIgnore ...bool) (fields []Field) {
 	v := reflect.ValueOf(struct0)
 	if !v.IsValid() {
 		panic("unilog: the struct value is invalid.")
@@ -72,14 +72,21 @@ func GetFieldsFromTag(struct0 any) (fields []Field) {
 	if v = rv(v); v.Kind() != reflect.Struct {
 		panic("unilog: the struct value is not supported.")
 	}
-	return getSupportedFields(v)
+	return getSupportedFields(v, defaultIgnore...)
 }
 
-func getSupportedFields(v reflect.Value) (fields []Field) {
+func getSupportedFields(v reflect.Value, defaultIgnoreS ...bool) (fields []Field) {
+	var defaultIgnore bool
+	if len(defaultIgnoreS) > 0 {
+		defaultIgnore = defaultIgnoreS[0]
+	}
 	for i := 0; i < v.NumField(); i++ {
 		fd := v.Type().Field(i)
 		fdv := v.Field(i)
 		logName, ok := fd.Tag.Lookup("log")
+		if defaultIgnore && !ok {
+			continue
+		}
 		if !ok {
 			logName = fd.Name
 		}
