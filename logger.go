@@ -18,6 +18,29 @@ import (
 	"github.com/go-the-way/unilog/internal/logger"
 )
 
+var supportedKind = map[reflect.Kind]struct{}{
+	reflect.Bool:       {},
+	reflect.Int:        {},
+	reflect.Int8:       {},
+	reflect.Int16:      {},
+	reflect.Int32:      {},
+	reflect.Int64:      {},
+	reflect.Uint:       {},
+	reflect.Uint8:      {},
+	reflect.Uint16:     {},
+	reflect.Uint32:     {},
+	reflect.Uint64:     {},
+	reflect.Float32:    {},
+	reflect.Float64:    {},
+	reflect.Complex64:  {},
+	reflect.Complex128: {},
+	reflect.Array:      {},
+	reflect.Map:        {},
+	reflect.Slice:      {},
+	reflect.String:     {},
+	reflect.Struct:     {},
+}
+
 func Callback[LOG logger.Logger](option ...func(req LOG) (laReq LogAddReq)) func(req LOG) {
 	return func(req LOG) {
 		logName := req.LogName()
@@ -42,67 +65,34 @@ func Callback[LOG logger.Logger](option ...func(req LOG) (laReq LogAddReq)) func
 }
 
 func GetFieldsFromTag(struct0 any) (fields []Field) {
-	var v reflect.Value
-	for v = reflect.ValueOf(struct0); v.Type().Kind() == reflect.Pointer; {
-		v = v.Elem()
-	}
-	if v.Kind() != reflect.Struct {
+	v := reflect.ValueOf(struct0)
+	if !v.IsValid() {
 		panic("unilog: the struct value is invalid.")
 	}
-	len0 := v.NumField()
-	for i := 0; i < len0; i++ {
-		field := v.Type().Field(i)
-		fieldValue := v.Field(i)
-		logName, ok := field.Tag.Lookup("log")
+	if v = rv(v); v.Kind() != reflect.Struct {
+		panic("unilog: the struct value is not supported.")
+	}
+	return getSupportedFields(v)
+}
+
+func getSupportedFields(v reflect.Value) (fields []Field) {
+	for i := 0; i < v.NumField(); i++ {
+		fd := v.Type().Field(i)
+		fdv := v.Field(i)
+		logName, ok := fd.Tag.Lookup("log")
 		if !ok {
-			logName = field.Name
+			logName = fd.Name
 		}
-		if logName == "-" {
-			continue
+		if logName != "-" && v.IsValid() {
+			fdv = rv(fdv)
+			if _, supported := supportedKind[fdv.Kind()]; supported {
+				if fdv.Kind() == reflect.Struct {
+					fields = append(fields, getSupportedFields(fdv)...)
+				} else if fdv.CanInterface() {
+					fields = append(fields, Field{Name: logName, Value: fdv.Interface()})
+				}
+			}
 		}
-		supported, logValue := supportedField(fieldValue)
-		if !supported {
-			continue
-		}
-		fields = append(fields, Field{Name: logName, Value: logValue})
-	}
-	return
-}
-
-var supportedKind = map[reflect.Kind]struct{}{
-	reflect.Bool:       {},
-	reflect.Int:        {},
-	reflect.Int8:       {},
-	reflect.Int16:      {},
-	reflect.Int32:      {},
-	reflect.Int64:      {},
-	reflect.Uint:       {},
-	reflect.Uint8:      {},
-	reflect.Uint16:     {},
-	reflect.Uint32:     {},
-	reflect.Uint64:     {},
-	reflect.Float32:    {},
-	reflect.Float64:    {},
-	reflect.Complex64:  {},
-	reflect.Complex128: {},
-	reflect.Array:      {},
-	reflect.Map:        {},
-	reflect.Slice:      {},
-	reflect.String:     {},
-}
-
-func supportedField(fieldValue reflect.Value) (supported bool, value any) {
-	if !fieldValue.IsValid() {
-		return
-	}
-	fieldValue = rv(fieldValue)
-	kd := fieldValue.Type().Kind()
-	if _, supported = supportedKind[kd]; !supported {
-		return
-	}
-	if fieldValue.CanInterface() {
-		supported = true
-		value = fieldValue.Interface()
 	}
 	return
 }
