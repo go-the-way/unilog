@@ -19,14 +19,16 @@ import (
 )
 
 type (
+	Log = models.Log
+
 	PaginationFunc = db.PaginationFunc
-	Log            = models.Log
 )
 
 type (
 	Logger           = logger.Logger
 	Info             = logger.Info
 	UserClientIP     = logger.UserClientIP
+	UC               = UserClientIP
 	User             = logger.User
 	ClientIP         = logger.ClientIP
 	Userdata         = logger.Userdata
