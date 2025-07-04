@@ -18,13 +18,15 @@ import (
 	"github.com/go-the-way/unilog/internal/services/log"
 )
 
-type PaginationFunc = db.PaginationFunc
+type (
+	PaginationFunc = db.PaginationFunc
+	Log            = models.Log
+)
 
 type (
 	Logger           = logger.Logger
 	Info             = logger.Info
 	UserClientIP     = logger.UserClientIP
-	UC               = UserClientIP
 	User             = logger.User
 	ClientIP         = logger.ClientIP
 	Userdata         = logger.Userdata
@@ -33,10 +35,9 @@ type (
 	FieldSliceOption = logger.FieldSliceOption
 )
 
-type Log = models.Log
-
 type (
 	LogGetPageReq = log.GetPageReq
+	LogIdReq      = log.IdReq
 	LogGetReq     = log.GetReq
 	LogAddReq     = log.AddReq
 	LogUpdateReq  = log.UpdateReq

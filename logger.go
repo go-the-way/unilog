@@ -18,6 +18,8 @@ import (
 	"github.com/go-the-way/unilog/internal/logger"
 )
 
+var _ = Callback[Logger]()
+
 var supportedKind = map[reflect.Kind]struct{}{
 	reflect.Bool:       {},
 	reflect.Int:        {},

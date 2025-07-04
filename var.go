@@ -17,6 +17,17 @@ import (
 )
 
 var (
+	_ = SetDB
+	_ = AutoMigrate
+	_ = SetPagination
+	_ = LogGetPage
+	_ = LogGet
+	_ = LogAdd
+	_ = LogUpdate
+	_ = LogDelete
+)
+
+var (
 	SetDB         = db.SetDB
 	AutoMigrate   = db.AutoMigrate
 	SetPagination = db.SetPagination
