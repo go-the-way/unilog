@@ -1,4 +1,4 @@
-// Copyright 2025 unilog Author. All Rights Reserved.
+// Copyright 2025 icmpacket Author. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,21 +11,13 @@
 
 package unilog
 
-import (
-	"github.com/go-the-way/unilog/internal/db"
-	"github.com/go-the-way/unilog/internal/services/log"
-)
-
 var (
-	SetDB         = db.SetDB
-	AutoMigrate   = db.AutoMigrate
-	SetPagination = db.SetPagination
-)
-
-var (
-	LogGetPage = log.GetPage
-	LogGet     = log.Get
-	LogAdd     = log.Add
-	LogUpdate  = log.Update
-	LogDelete  = log.Delete
+	_ = SetDB
+	_ = AutoMigrate
+	_ = SetPagination
+	_ = LogGetPage
+	_ = LogGet
+	_ = LogAdd
+	_ = LogUpdate
+	_ = LogDelete
 )
