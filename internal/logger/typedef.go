@@ -11,11 +11,6 @@
 
 package logger
 
-import (
-	"fmt"
-	"strings"
-)
-
 type (
 	Logger interface {
 		Info
@@ -39,38 +34,5 @@ type (
 		Name  string
 		Value any
 	}
-	FieldSlice       []Field
-	FieldSliceOption struct {
-		FieldFormat  string
-		FieldJoinSep string
-	}
+	FieldSlice []Field
 )
-
-func (a FieldSlice) String(option ...func(opt *FieldSliceOption)) string {
-	var opt = FieldSliceOption{FieldJoinSep: ","}
-	if len(option) > 0 {
-		if optFn := option[0]; optFn != nil {
-			optFn(&opt)
-		}
-	}
-	var formatS []string
-	if ft := opt.FieldFormat; len(ft) > 0 {
-		formatS = append(formatS, ft)
-	}
-	sep := opt.FieldJoinSep
-	var strS []string
-	for _, aa := range a {
-		strS = append(strS, aa.String(formatS...))
-	}
-	return strings.Join(strS, sep)
-}
-
-func (a Field) String(format ...string) string {
-	ft := "%s[%v]"
-	if len(format) > 0 {
-		if ft0 := format[0]; len(ft0) > 0 {
-			ft = ft0
-		}
-	}
-	return fmt.Sprintf(ft, a.Name, a.Value)
-}
