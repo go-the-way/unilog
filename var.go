@@ -12,7 +12,10 @@
 package unilog
 
 import (
+	"fmt"
+
 	"github.com/go-the-way/unilog/internal/db"
+	"github.com/go-the-way/unilog/internal/logger"
 	"github.com/go-the-way/unilog/internal/services/log"
 )
 
@@ -20,6 +23,8 @@ var (
 	SetDB         = db.SetDB
 	AutoMigrate   = db.AutoMigrate
 	SetPagination = db.SetPagination
+
+	GetFieldsFromTag = logger.GetFieldsFromTag
 )
 
 var (
@@ -29,3 +34,26 @@ var (
 	LogUpdate  = log.Update
 	LogDelete  = log.Delete
 )
+
+func Callback[LOG logger.Logger](opts ...func(req LOG) (laReq LogAddReq)) func(req LOG) {
+	return func(req LOG) {
+		logName := req.LogName()
+		if logName == "" {
+			logName = "unknown"
+		}
+		fieldsContent := ""
+		if len(req.LogFields()) > 0 {
+			fieldsContent = req.LogFields().String()
+		}
+		userdata := req.LogUser()
+		clientIP := req.LogClientIP()
+		content := fmt.Sprintf("%s{%s}", logName, fieldsContent)
+		laReq := LogAddReq{UserId: userdata.UserId, UserName: userdata.UserName, ClientIP: clientIP, Content: content}
+		if len(opts) > 0 {
+			if opt := opts[0]; opt != nil {
+				laReq = opt(req)
+			}
+		}
+		LogAdd(laReq)
+	}
+}

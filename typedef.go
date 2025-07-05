@@ -25,16 +25,15 @@ type (
 )
 
 type (
-	Logger           = logger.Logger
-	Info             = logger.Info
-	UserClientIP     = logger.UserClientIP
-	UC               = UserClientIP
-	User             = logger.User
-	ClientIP         = logger.ClientIP
-	Userdata         = logger.Userdata
-	Field            = logger.Field
-	FieldSlice       = logger.FieldSlice
-	FieldSliceOption = logger.FieldSliceOption
+	Logger       = logger.Logger
+	Info         = logger.Info
+	UserClientIP = logger.UserClientIP
+	UC           = UserClientIP
+	User         = logger.User
+	ClientIP     = logger.ClientIP
+	Userdata     = logger.Userdata
+	Field        = logger.Field
+	FieldSlice   = logger.FieldSlice
 )
 
 type (

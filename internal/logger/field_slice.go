@@ -9,4 +9,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package logger
+
+import "strings"
+
+func (fs FieldSlice) String() string {
+	var strS []string
+	for _, f := range fs {
+		if fStr := f.string(); fStr != "" {
+			strS = append(strS, fStr)
+		}
+	}
+	return strings.Join(strS, ",")
+}
