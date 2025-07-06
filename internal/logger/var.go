@@ -42,12 +42,11 @@ func getSupportedFields(v reflect.Value, defaultIgnoreS ...bool) (fieldSlice Fie
 			if logName == "" {
 				logName = fd.Name
 			}
-			if fdv.Kind() == reflect.Struct {
-				switch logName {
-				default:
-					fieldSlice = append(fieldSlice, Field{Name: logName, Value: getSupportedFields(fdv)})
-				case ",inner":
-					fieldSlice = append(fieldSlice, getSupportedFields(fdv)...)
+			if isStruct {
+				if logName == ",inner" {
+					fieldSlice = append(fieldSlice, getSupportedFields(fdv, defaultIgnore)...)
+				} else {
+					fieldSlice = append(fieldSlice, Field{Name: logName, Value: getSupportedFields(fdv, defaultIgnore)})
 				}
 			} else if fdv.CanInterface() {
 				fieldSlice = append(fieldSlice, Field{Name: logName, Value: fdv.Interface()})
