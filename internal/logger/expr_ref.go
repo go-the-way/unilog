@@ -36,9 +36,15 @@ func newExprRef(expr0 string) *exprRef { return &exprRef{expr0} }
 //			Ref11 struct{ Name string }
 //		} `log:"-"`
 //	}
-func (r *exprRef) Expr(ov, sv reflect.Value) (values []any) {
+//
+// values:
+//
+// p0: ref value
+//
+// p1: original value
+func (r *exprRef) Expr(format string, ov, sv reflect.Value) (values []any) {
 	expr0 := r.expr0
-	oldValFunc := func() (a any) {
+	refValFunc := func() (a any) {
 		v := ov
 		if !strings.HasPrefix(expr0, ".") {
 			expr0 = "." + expr0
@@ -64,8 +70,22 @@ func (r *exprRef) Expr(ov, sv reflect.Value) (values []any) {
 		}
 		return
 	}
-	newValFunc := func() (a any) { return sv.Interface() }
-	oldVal := oldValFunc()
-	newVal := newValFunc()
-	return []any{oldVal, newVal}
+	selfValFunc := func() (a any) { return sv.Interface() }
+	ftc := strings.Count(format, "%")
+	switch ftc {
+	default:
+		// others error
+		return
+	case 2:
+		// %s[%s]
+		// p0: log name
+		// p1: ref value
+		return []any{refValFunc()}
+	case 3:
+		// %s[%v=>%s]
+		// p0: log name
+		// p1: ref value
+		// p2: original value
+		return []any{refValFunc(), selfValFunc()}
+	}
 }

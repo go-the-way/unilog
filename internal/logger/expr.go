@@ -14,5 +14,5 @@ package logger
 import "reflect"
 
 type expr interface {
-	Expr(ov, sv reflect.Value) (values []any)
+	Expr(format string, ov, sv reflect.Value) (values []any)
 }

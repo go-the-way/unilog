@@ -32,7 +32,13 @@ func newExprTransform(expr0 string) *exprTransform { return &exprTransform{expr0
 //	type logger struct {
 //		Status byte `log:"Status,transform:1->on|2->off`
 //	}
-func (t *exprTransform) Expr(_, sv reflect.Value) (values []any) {
+//
+// values:
+//
+// p0: transformed value
+//
+// p1: original value
+func (t *exprTransform) Expr(format string, _, sv reflect.Value) (values []any) {
 	valS := strings.Split(t.expr0, "|")
 	var m = map[string]any{}
 	for _, val := range valS {
@@ -43,7 +49,24 @@ func (t *exprTransform) Expr(_, sv reflect.Value) (values []any) {
 			m[k] = v
 		}
 	}
-	k := fmt.Sprintf("%v", sv.Interface())
+	svv := sv.Interface()
+	k := fmt.Sprintf("%v", svv)
 	sa := m[k]
-	return []any{sa}
+	ftc := strings.Count(format, "%")
+	switch ftc {
+	default:
+		// others error
+		return
+	case 2:
+		// %s[%s]
+		// p0: log name
+		// p1: transformed value
+		return []any{sa}
+	case 3:
+		// %s[%v=>%s]
+		// p0: log name
+		// p1: transformed value
+		// p2: original value
+		return []any{sa, svv}
+	}
 }

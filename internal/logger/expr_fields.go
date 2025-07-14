@@ -19,4 +19,4 @@ type exprFields struct{ FieldSlice }
 
 func newExprFields(fs FieldSlice) *exprFields { return &exprFields{fs} }
 
-func (fs exprFields) Expr(_, _ reflect.Value) (values []any) { return []any{fs.Log()} }
+func (fs exprFields) Expr(_ string, _, _ reflect.Value) (values []any) { return []any{fs.Log()} }

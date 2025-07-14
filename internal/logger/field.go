@@ -27,7 +27,7 @@ type Field struct {
 func (f Field) log() (str string) {
 	f.values = append(f.values, f.Name)
 	if f.expr != nil {
-		f.values = append(f.values, f.Expr(f.OV, f.SV)...)
+		f.values = append(f.values, f.Expr(f.Format, f.OV, f.SV)...)
 	}
 	vk := f.SV.Kind()
 	switch {
