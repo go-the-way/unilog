@@ -11,28 +11,8 @@
 
 package logger
 
-type (
-	Logger interface {
-		Info
-		UserClientIP
-	}
-	Info interface {
-		LogName() (name string)
-		LogFields() (fields FieldSlice)
-	}
-	UserClientIP interface {
-		User
-		ClientIP
-	}
-	User     interface{ LogUser() (userdata Userdata) }
-	ClientIP interface{ LogClientIP() (clientIP string) }
-	Userdata struct {
-		UserId   uint
-		UserName string
-	}
-	Field struct {
-		Name  string
-		Value any
-	}
-	FieldSlice []Field
-)
+import "reflect"
+
+type expr interface {
+	Expr(ov, sv reflect.Value) (values []any)
+}

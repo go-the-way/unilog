@@ -13,10 +13,12 @@ package logger
 
 import "strings"
 
-func (fs FieldSlice) String() string {
+type FieldSlice []Field
+
+func (fs FieldSlice) Log() string {
 	var strS []string
 	for _, f := range fs {
-		if fStr := f.string(); fStr != "" {
+		if fStr := f.log(); fStr != "" {
 			strS = append(strS, fStr)
 		}
 	}

@@ -17,43 +17,57 @@ import (
 	"strings"
 )
 
-func (f Field) string() (str string) {
-	vv := reflect.ValueOf(f.Value)
-	vk := vv.Kind()
+type Field struct {
+	Name, Format string
+	expr
+	SV, OV reflect.Value
+	values []any
+}
+
+func (f Field) log() (str string) {
+	f.values = append(f.values, f.Name)
+	if f.expr != nil {
+		f.values = append(f.values, f.Expr(f.OV, f.SV)...)
+	}
+	vk := f.SV.Kind()
 	switch {
-	case vk >= reflect.Bool && vk <= reflect.Float64 || vk == reflect.Interface || vk == reflect.String:
+
+	case vk >= reflect.Bool && vk <= reflect.Float64 || vk == reflect.String:
+		if f.expr == nil {
+			f.values = append(f.values, f.SV.Interface())
+		}
+		return f.basic2string()
+
+	case vk == reflect.Struct:
 		return f.basic2string()
 
 	case vk == reflect.Array || vk == reflect.Slice:
-		if fs0, ok := f.Value.(FieldSlice); ok {
-			return (Field{Name: f.Name, Value: fs0.String()}).basic2string()
-		} else {
-			return f.array2string(vv)
-		}
+		return f.array2string()
 
 	case vk == reflect.Map:
-		return f.map2string(vv)
+		return f.map2string()
 	}
 
 	return
 }
 
-func (f Field) basic2string() string { return fmt.Sprintf("%s[%v]", f.Name, f.Value) }
+func (f Field) basic2string() string { return fmt.Sprintf(f.Format, f.values...) }
 
-func (f Field) array2string(v reflect.Value) string {
+func (f Field) array2string() string {
 	var arrS []string
-	for i := 0; i < v.Len(); i++ {
-		iv := v.Index(i)
+	for i := 0; i < f.SV.Len(); i++ {
+		iv := f.SV.Index(i)
 		if iv.CanInterface() {
 			arrS = append(arrS, fmt.Sprintf("%v", iv.Interface()))
 		}
 	}
-	return fmt.Sprintf("%s[%v]", f.Name, strings.Join(arrS, ","))
+	f.values = append(f.values, strings.Join(arrS, ","))
+	return fmt.Sprintf(f.Format, f.values...)
 }
 
-func (f Field) map2string(v0 reflect.Value) string {
+func (f Field) map2string() string {
 	var arrS []string
-	mr := v0.MapRange()
+	mr := f.SV.MapRange()
 	for mr.Next() {
 		k := mr.Key()
 		v := mr.Value()
@@ -61,5 +75,6 @@ func (f Field) map2string(v0 reflect.Value) string {
 			arrS = append(arrS, fmt.Sprintf("%s:%v", k, v.Interface()))
 		}
 	}
-	return fmt.Sprintf("%s[%v]", f.Name, strings.Join(arrS, ","))
+	f.values = append(f.values, strings.Join(arrS, ","))
+	return fmt.Sprintf(f.Format, f.values...)
 }

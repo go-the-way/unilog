@@ -9,17 +9,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package unilog
+package logger
 
-var (
-	_ = SetDB
-	_ = AutoMigrate
-	_ = SetPagination
-	_ = LogGetPage
-	_ = LogGet
-	_ = LogAdd
-	_ = LogUpdate
-	_ = LogDelete
-	_ = Callback[Logger]
-	_ = GetFieldsFromTag
+type (
+	Logger interface {
+		Info
+		UserClientIP
+	}
+	Info interface {
+		LogName() (name string)
+		LogFields() (fields FieldSlice)
+	}
+	UserClientIP interface {
+		User
+		ClientIP
+	}
+	User     interface{ LogUser() (userdata Userdata) }
+	ClientIP interface{ LogClientIP() (clientIP string) }
+	Userdata struct {
+		UserId   uint
+		UserName string
+	}
 )

@@ -23,8 +23,7 @@ var (
 	SetDB         = db.SetDB
 	AutoMigrate   = db.AutoMigrate
 	SetPagination = db.SetPagination
-
-	GetFieldsFromTag = logger.GetFieldsFromTag
+	GetFields     = logger.GetFields
 )
 
 var (
@@ -43,7 +42,7 @@ func Callback[LOG logger.Logger](opts ...func(req LOG) (laReq LogAddReq)) func(r
 		}
 		fieldsContent := ""
 		if len(req.LogFields()) > 0 {
-			fieldsContent = req.LogFields().String()
+			fieldsContent = req.LogFields().Log()
 		}
 		userdata := req.LogUser()
 		clientIP := req.LogClientIP()

@@ -11,9 +11,12 @@
 
 package logger
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
-func GetFieldsFromTag(struct0 any, defaultIgnore ...bool) (fieldSlice FieldSlice) {
+func GetFields(struct0 any, defaultIgnore ...bool) (fieldSlice FieldSlice) {
 	v := reflect.ValueOf(struct0)
 	if !v.IsValid() {
 		panic("unilog: the struct value is invalid.")
@@ -24,33 +27,56 @@ func GetFieldsFromTag(struct0 any, defaultIgnore ...bool) (fieldSlice FieldSlice
 	return getSupportedFields(v, defaultIgnore...)
 }
 
-func getSupportedFields(v reflect.Value, defaultIgnoreS ...bool) (fieldSlice FieldSlice) {
+func getSupportedFields(ov reflect.Value, defaultIgnoreS ...bool) (fieldSlice FieldSlice) {
 	var defaultIgnore bool
 	if len(defaultIgnoreS) > 0 {
 		defaultIgnore = defaultIgnoreS[0]
 	}
-	for i := 0; i < v.NumField(); i++ {
-		fd := v.Type().Field(i)
-		fdv := v.Field(i)
-		fdv = rv(fdv)
-		if _, supported := supportedKind[fdv.Kind()]; supported {
-			isStruct := fdv.Kind() == reflect.Struct
-			logName, ok := fd.Tag.Lookup("log")
-			if ((isStruct || defaultIgnore) && !ok) || logName == "-" {
+	ov = rv(ov)
+	for i := 0; i < ov.NumField(); i++ {
+		fd := ov.Type().Field(i)
+		sv := rv(ov.Field(i))
+		if _, supported := supportedKind[sv.Kind()]; supported {
+			isStruct := sv.Kind() == reflect.Struct
+			logTag, ok := fd.Tag.Lookup("log")
+			if ((isStruct || defaultIgnore) && !ok) || logTag == "-" {
 				continue
 			}
-			if logName == "" {
-				logName = fd.Name
+
+			if isStruct && logTag == ",inner" {
+				fieldSlice = append(fieldSlice, getSupportedFields(sv, defaultIgnore)...)
+				continue
 			}
-			if isStruct {
-				if logName == ",inner" {
-					fieldSlice = append(fieldSlice, getSupportedFields(fdv, defaultIgnore)...)
-				} else {
-					fieldSlice = append(fieldSlice, Field{Name: logName, Value: getSupportedFields(fdv, defaultIgnore)})
-				}
-			} else if fdv.CanInterface() {
-				fieldSlice = append(fieldSlice, Field{Name: logName, Value: fdv.Interface()})
+
+			logName, format, expr0 := parseTag(fd, logTag)
+
+			if !isStruct {
+				fieldSlice = append(fieldSlice, Field{Name: logName, Format: format, expr: expr0, SV: sv, OV: ov})
+				continue
 			}
+
+			fieldSlice = append(fieldSlice, Field{Name: logName, Format: format, expr: newExprFields(getSupportedFields(sv, defaultIgnore)), SV: sv, OV: ov})
+		}
+	}
+	return
+}
+
+func parseTag(fd reflect.StructField, logTag string) (logName, format string, expr0 expr) {
+	logName = fd.Name
+	format = "%s[%v]"
+	tagS := strings.Split(logTag, ",")
+	for i, tag := range tagS {
+		if tag = strings.TrimSpace(tag); tag == "" {
+			continue
+		}
+		if i == 0 {
+			logName = tag
+		} else if strings.HasPrefix(tag, "ref:") {
+			expr0 = newExprRef(strings.TrimLeft(tag, "ref:"))
+		} else if strings.HasPrefix(tag, "transform:") {
+			expr0 = newExprTransform(strings.TrimLeft(tag, "transform:"))
+		} else {
+			format = tag
 		}
 	}
 	return

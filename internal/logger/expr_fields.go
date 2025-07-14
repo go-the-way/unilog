@@ -9,18 +9,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package base
+package logger
 
-func Callback1[T any](err0 error, t T, fns ...func(t T)) (err error) {
-	if err = err0; err != nil {
-		return
-	}
-	for _, fn := range fns {
-		if fn != nil {
-			fn(t)
-		}
-	}
-	return
-}
+import "reflect"
 
-func Return[T any](t T, err0 error) (T, error) { return t, err0 }
+var _ expr = (*exprFields)(nil)
+
+type exprFields struct{ FieldSlice }
+
+func newExprFields(fs FieldSlice) *exprFields { return &exprFields{fs} }
+
+func (fs exprFields) Expr(_, _ reflect.Value) (values []any) { return []any{fs.Log()} }
