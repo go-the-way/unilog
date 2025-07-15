@@ -57,9 +57,9 @@ func (r *exprRef) Expr(format string, ov, sv reflect.Value) (values []any) {
 			expr0 = expr0[dotIdx+1:]
 			dotIdx2 := strings.IndexByte(expr0, '.')
 			if dotIdx2 == -1 {
-				if expr0 != "" {
+				if expr0 != "" && v.Kind() == reflect.Struct {
 					fv := v.FieldByName(expr0)
-					if !fv.IsZero() && fv.CanInterface() {
+					if fv.IsValid() && fv.CanInterface() {
 						a = fv.Interface()
 					}
 				}
@@ -70,7 +70,6 @@ func (r *exprRef) Expr(format string, ov, sv reflect.Value) (values []any) {
 		}
 		return
 	}
-	selfValFunc := func() (a any) { return sv.Interface() }
 	ftc := strings.Count(format, "%")
 	switch ftc {
 	default:
@@ -86,6 +85,6 @@ func (r *exprRef) Expr(format string, ov, sv reflect.Value) (values []any) {
 		// p0: log name
 		// p1: ref value
 		// p2: original value
-		return []any{refValFunc(), selfValFunc()}
+		return []any{refValFunc(), sv.Interface()}
 	}
 }

@@ -50,12 +50,11 @@ func getSupportedFields(ov reflect.Value, defaultIgnoreS ...bool) (fieldSlice Fi
 
 			logName, format, expr0 := parseTag(fd, logTag)
 
-			if !isStruct {
-				fieldSlice = append(fieldSlice, Field{Name: logName, Format: format, expr: expr0, SV: sv, OV: ov})
-				continue
+			f := Field{Name: logName, Format: format, expr: expr0, SV: sv, OV: ov}
+			if isStruct && expr0 == nil {
+				f.expr = newExprFields(getSupportedFields(sv, defaultIgnore))
 			}
-
-			fieldSlice = append(fieldSlice, Field{Name: logName, Format: format, expr: newExprFields(getSupportedFields(sv, defaultIgnore)), SV: sv, OV: ov})
+			fieldSlice = append(fieldSlice, f)
 		}
 	}
 	return
@@ -72,9 +71,9 @@ func parseTag(fd reflect.StructField, logTag string) (logName, format string, ex
 		if i == 0 {
 			logName = tag
 		} else if strings.HasPrefix(tag, "ref:") {
-			expr0 = newExprRef(strings.TrimLeft(tag, "ref:"))
+			expr0 = newExprRef(tag[4:])
 		} else if strings.HasPrefix(tag, "transform:") {
-			expr0 = newExprTransform(strings.TrimLeft(tag, "transform:"))
+			expr0 = newExprTransform(tag[10:])
 		} else {
 			format = tag
 		}

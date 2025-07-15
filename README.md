@@ -9,6 +9,14 @@ The unified log package
 - Expr Supported
 - Extendable
 
+# Tag Definition
+- Name `log:"log_name"`, default: `field_name`
+- Format `log:",%s[%v]"`, default: `%s[%v]`
+- Ref 1 `log:",ref:Ref1.Var,%s[ref:%v]"`
+- Ref 2 `log:",ref:Ref2.Var,%s[ref:%v self:%v]"`
+- Transform 1 `log:",transform:1->on|2->off,%s[transformed:%v]"`
+- Transform 2 `log:",transform:1->on|2->off,%s[transformed:%v self:%v]"`
+
 # Usage
 ```
 package main
@@ -20,7 +28,7 @@ import (
 )
 
 type (
-	loggerObj struct {
+	logger struct {
 		Int8  int8
 		Int16 int16
 		Int   int
@@ -40,50 +48,48 @@ type (
 		Array   [2]string
 		Slice   []string
 
-		Obj1    loggerObj1 `log:"obj_1,%s{%s}"`
-		Obj2    loggerObj2 `log:",inner"`
-		Ref1Val string     `log:"ref_1_val,ref:Ref1.Name,%s[%s => %s]"`
-		Ref2Val string     `log:"ref_2_val,ref:Ref1.Name"`
-		Ref1    loggerRef1 `log:"-"`
+		Obj       loggerObj `log:""`
+		ObjFormat loggerObj `log:",%s{%v}"`
+		ObjInner  loggerObj `log:",inner"`
 
-		Trans1 bool `log:"trans_1,transform:true->Y|false->F,%s[%s]"`
-		Trans2 bool `log:"trans_2,transform:true->Y|false->F,%s[%s:%v]"`
+		RefObj                  string `log:",ref:Obj"`
+		RefObjFormat            string `log:",ref:Obj,%s[ref_obj:%s]"`
+		RefObjField             string `log:",ref:Obj.Name"`
+		RefObjFieldFormat       string `log:",ref:Obj.Name,%s[ref_field:%s]"`
+		RefUndefinedObj         string `log:",ref:Any"`
+		RefUndefinedObjFormat   string `log:",ref:Any,%s[ref_undefined_obj:%v]"`
+		RefUndefinedField       string `log:",ref:Any.Field"`
+		RefUndefinedFieldFormat string `log:",ref:Any.Field,%s[ref_undefined_field:%v]"`
+
+		Ref2ObjFormat            byte `log:",ref:Obj,%s[ref_obj:%s self:%d]"`
+		Ref2ObjFieldFormat       byte `log:",ref:Obj.Name,%s[ref_field:%s self:%d]"`
+		Ref2UndefinedObjFormat   byte `log:",ref:Any,%s[ref_undefined_obj:%v self:%d]"`
+		Ref2UndefinedFieldFormat byte `log:",ref:Any.Field,%s[ref_undefined_field:%v self:%d]"`
+
+		Transform       byte `log:",transform:0->unknown|1->on|2->off"`
+		TransformFormat byte `log:",transform:0->unknown|1->on|2->off,%s[transformed:%s self:%d]"`
 	}
-	loggerObj1 struct{ Name string }
-	loggerObj2 struct{ Name string }
-	loggerRef1 struct{ Name string }
+	loggerObj struct{ Name string }
 )
 
-func TestName(t *testing.T) {
-	obj := &loggerObj{
-		String:  "Polo",
-		Map:     map[string]any{"halo": "haha"},
-		Array:   [2]string{"Apple", "Coco"},
-		Slice:   []string{"Apple", "Coco"},
-		Obj1:    loggerObj1{"Pero"},
-		Obj2:    loggerObj2{"Kale"},
-		Ref1Val: "Joo",
-		Ref1:    loggerRef1{"Cola"},
-	}
-	t.Log(GetFields(obj).Log())
-}
-
 func main() {
-	obj := &loggerObj{
-		String:  "Polo",
-		Map:     map[string]any{"halo": "haha"},
-		Array:   [2]string{"Apple", "Coco"},
-		Slice:   []string{"Apple", "Coco"},
-		Obj1:    loggerObj1{"Pero"},
-		Obj2:    loggerObj2{"Kale"},
-		Ref1Val: "Joo",
-		Ref1:    loggerRef1{"Cola"},
+	obj := &logger{
+		String: "Polo",
+		Map:    map[string]any{"name": "Halo"},
+		Array:  [2]string{"Apple", "Banana"},
+		Slice:  []string{"Orange", "Lemon"},
+		Obj:    loggerObj{"Kellen"},
 	}
 	fmt.Println(unilog.GetFields(obj).Log())
 	// Outputs:
 	// Int8[0],Int16[0],Int[0],Int32[0],Int64[0],Uint8[0],Uint16[0],Uint[0],Uint32[0],Uint64[0],Float32[0],Float64[0],String[Polo],
-	// Map[halo:haha],Array[Apple,Coco],Slice[Apple,Coco],
-	// obj_1{Name[Pero]},Name[Kale],ref_1_val[Cola => Joo],ref_2_val[Cola],
-	// trans_1[F],trans_2[F:false]
+	// Map[name:Halo],Array[Apple,Banana],Slice[Orange,Lemon],
+	// Obj[Name[Kellen]],ObjFormat{Name[]},Name[],
+	// RefObj[{Kellen}],RefObjFormat[ref_obj:{Kellen}],RefObjField[Kellen],RefObjFieldFormat[ref_field:Kellen],
+	// RefUndefinedObj[<nil>],RefUndefinedObjFormat[ref_undefined_obj:<nil>],RefUndefinedField[<nil>],
+	// RefUndefinedFieldFormat[ref_undefined_field:<nil>],
+	// Ref2ObjFormat[ref_obj:{Kellen} self:0],Ref2ObjFieldFormat[ref_field:Kellen self:0],
+	// Ref2UndefinedObjFormat[ref_undefined_obj:<nil> self:0],Ref2UndefinedFieldFormat[ref_undefined_field:<nil> self:0],
+	// Transform[unknown],TransformFormat[transformed:unknown self:0]
 }
 ```

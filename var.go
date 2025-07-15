@@ -24,6 +24,8 @@ var (
 	AutoMigrate   = db.AutoMigrate
 	SetPagination = db.SetPagination
 	GetFields     = logger.GetFields
+	SetArrayFunc  = logger.SetArrayFunc
+	SetMapFunc    = logger.SetMapFunc
 )
 
 var (

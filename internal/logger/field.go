@@ -14,67 +14,40 @@ package logger
 import (
 	"fmt"
 	"reflect"
-	"strings"
 )
 
 type Field struct {
 	Name, Format string
 	expr
 	SV, OV reflect.Value
-	values []any
 }
 
 func (f Field) log() (str string) {
-	f.values = append(f.values, f.Name)
+	var values []any
+	values = append(values, f.Name)
+	values = append(values, f.eval()...)
+	return fmt.Sprintf(f.Format, values...)
+}
+
+func (f Field) eval() (values []any) {
 	if f.expr != nil {
-		f.values = append(f.values, f.Expr(f.Format, f.OV, f.SV)...)
+		return f.Expr(f.Format, f.OV, f.SV)
 	}
+	return []any{f.value()}
+}
+
+func (f Field) value() (v any) {
 	vk := f.SV.Kind()
 	switch {
-
-	case vk >= reflect.Bool && vk <= reflect.Float64 || vk == reflect.String:
-		if f.expr == nil {
-			f.values = append(f.values, f.SV.Interface())
-		}
-		return f.basic2string()
-
-	case vk == reflect.Struct:
-		return f.basic2string()
+	case vk >= reflect.Bool && vk <= reflect.Float64 || vk == reflect.String || vk == reflect.Struct:
+		return f.SV.Interface()
 
 	case vk == reflect.Array || vk == reflect.Slice:
-		return f.array2string()
+		return arrayFunc0(f.SV)
 
 	case vk == reflect.Map:
-		return f.map2string()
+		return mapFunc0(f.SV)
 	}
 
 	return
-}
-
-func (f Field) basic2string() string { return fmt.Sprintf(f.Format, f.values...) }
-
-func (f Field) array2string() string {
-	var arrS []string
-	for i := 0; i < f.SV.Len(); i++ {
-		iv := f.SV.Index(i)
-		if iv.CanInterface() {
-			arrS = append(arrS, fmt.Sprintf("%v", iv.Interface()))
-		}
-	}
-	f.values = append(f.values, strings.Join(arrS, ","))
-	return fmt.Sprintf(f.Format, f.values...)
-}
-
-func (f Field) map2string() string {
-	var arrS []string
-	mr := f.SV.MapRange()
-	for mr.Next() {
-		k := mr.Key()
-		v := mr.Value()
-		if k.CanInterface() && v.CanInterface() {
-			arrS = append(arrS, fmt.Sprintf("%s:%v", k, v.Interface()))
-		}
-	}
-	f.values = append(f.values, strings.Join(arrS, ","))
-	return fmt.Sprintf(f.Format, f.values...)
 }
