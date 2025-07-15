@@ -18,9 +18,11 @@ import (
 )
 
 var (
-	arrayFunc0 ArrayFunc = arrayFunc00()
-	mapFunc0   MapFunc   = mapFunc00()
+	arrayFunc0 ArrayFunc
+	mapFunc0   MapFunc
 )
+
+func init() { arrayFunc0 = arrayFunc00(); mapFunc0 = mapFunc00() }
 
 func SetArrayFunc(arrayFunc ArrayFunc) { arrayFunc0 = arrayFunc }
 func SetMapFunc(mapFunc MapFunc)       { mapFunc0 = mapFunc }
