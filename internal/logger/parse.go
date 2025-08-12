@@ -36,6 +36,9 @@ func getSupportedFields(ov reflect.Value, defaultIgnoreS ...bool) (fieldSlice Fi
 	for i := 0; i < ov.NumField(); i++ {
 		fd := ov.Type().Field(i)
 		sv := rv(ov.Field(i))
+		if !fd.IsExported() {
+			continue
+		}
 		if _, supported := supportedKind[sv.Kind()]; supported {
 			isStruct := sv.Kind() == reflect.Struct
 			logTag, ok := fd.Tag.Lookup("log")
