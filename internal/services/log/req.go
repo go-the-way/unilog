@@ -22,6 +22,9 @@ type (
 		UserId      uint   `form:"user_id"`      // 用户Id
 		UserName    string `form:"user_name"`    // 用户名
 		ClientIP    string `form:"client_ip"`    // 客户端IP
+		Type1       string `form:"type1"`        // 类型1
+		Type2       string `form:"type2"`        // 类型2
+		Type3       string `form:"type3"`        // 类型3
 		Content     string `form:"content"`      // 日志内容
 		CreateTime1 string `form:"create_time1"` // 创建时间
 		CreateTime2 string `form:"create_time2"` // 创建时间
@@ -36,6 +39,9 @@ type (
 		UserId   uint   `json:"user_id"`   // 用户Id
 		UserName string `json:"user_name"` // 用户名称
 		ClientIP string `json:"client_ip"` // 客户端IP
+		Type1    string `json:"type1"`     // 类型1
+		Type2    string `json:"type2"`     // 类型2
+		Type3    string `json:"type3"`     // 类型3
 		Content  string `json:"content"`   // 日志内容
 		Callback func(req AddReq)
 	}

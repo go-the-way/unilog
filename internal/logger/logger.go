@@ -13,20 +13,20 @@ package logger
 
 type (
 	Logger interface {
-		Info
-		UserClientIP
+		LogInfo
+		LogUserClientIP
 	}
-	Info interface {
+	LogInfo interface {
 		LogName() (name string)
 		LogFields() (fields FieldSlice)
 	}
-	UserClientIP interface {
-		User
-		ClientIP
+	LogUserClientIP interface {
+		LogUser
+		LogClientIP
 	}
-	User     interface{ LogUser() (userdata Userdata) }
-	ClientIP interface{ LogClientIP() (clientIP string) }
-	Userdata struct {
+	LogUser     interface{ LogUser() (userdata Userdata) }
+	LogClientIP interface{ LogClientIP() (clientIP string) }
+	Userdata    struct {
 		UserId   uint
 		UserName string
 	}
