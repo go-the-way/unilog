@@ -25,6 +25,8 @@ type (
 		Type1       string `form:"type1"`        // 类型1
 		Type2       string `form:"type2"`        // 类型2
 		Type3       string `form:"type3"`        // 类型3
+		Type4       string `form:"type4"`        // 类型4
+		Type5       string `form:"type5"`        // 类型5
 		Content     string `form:"content"`      // 日志内容
 		CreateTime1 string `form:"create_time1"` // 创建时间
 		CreateTime2 string `form:"create_time2"` // 创建时间
@@ -42,6 +44,8 @@ type (
 		Type1    string `json:"type1"`     // 类型1
 		Type2    string `json:"type2"`     // 类型2
 		Type3    string `json:"type3"`     // 类型3
+		Type4    string `json:"type4"`     // 类型4
+		Type5    string `json:"type5"`     // 类型5
 		Content  string `json:"content"`   // 日志内容
 		Callback func(req AddReq)
 	}
