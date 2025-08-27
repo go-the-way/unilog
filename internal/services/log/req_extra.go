@@ -24,6 +24,8 @@ func (req *AddReq) transform() *models.Log {
 		Type1:      req.Type1,
 		Type2:      req.Type2,
 		Type3:      req.Type3,
+		Type4:      req.Type4,
+		Type5:      req.Type5,
 		Content:    req.Content,
 		CreateTime: pkg.TimeNowStr(),
 		UpdateTime: pkg.TimeNowStr(),
@@ -38,6 +40,8 @@ func (req *UpdateReq) transform() map[string]any {
 		"type1":       req.Type1,
 		"type2":       req.Type2,
 		"type3":       req.Type3,
+		"type4":       req.Type4,
+		"type5":       req.Type5,
 		"content":     req.Content,
 		"update_time": pkg.TimeNowStr(),
 	}
