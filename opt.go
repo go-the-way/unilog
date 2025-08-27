@@ -17,4 +17,6 @@ func ClientIP(a string) CallbackFunc { return func(req *LogAddReq) { req.ClientI
 func Type1(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type1 = a } }
 func Type2(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type2 = a } }
 func Type3(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type3 = a } }
+func Type4(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type4 = a } }
+func Type5(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type5 = a } }
 func Content(a string) CallbackFunc  { return func(req *LogAddReq) { req.Content = a } }

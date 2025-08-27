@@ -21,6 +21,8 @@ type (
 		Type1      string `gorm:"column:type1;type:varchar(100);not null;default:'';comment:类型1;index" json:"type1"`           // 类型1
 		Type2      string `gorm:"column:type2;type:varchar(100);not null;default:'';comment:类型2;index" json:"type2"`           // 类型2
 		Type3      string `gorm:"column:type3;type:varchar(100);not null;default:'';comment:类型3;index" json:"type3"`           // 类型3
+		Type4      string `gorm:"column:type4;type:varchar(100);not null;default:'';comment:类型4;index" json:"type4"`           // 类型4
+		Type5      string `gorm:"column:type5;type:varchar(100);not null;default:'';comment:类型5;index" json:"type5"`           // 类型5
 		Content    string `gorm:"column:content;type:varchar(500);not null;default:'';comment:日志内容" json:"content"`            // 日志内容
 		CreateTime string `gorm:"column:create_time;type:varchar(20);not null;default:'';comment:创建时间" json:"create_time"`     // 创建时间
 		UpdateTime string `gorm:"column:update_time;type:varchar(20);not null;default:'';comment:修改时间" json:"update_time"`     // 修改时间
