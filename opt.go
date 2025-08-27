@@ -20,3 +20,5 @@ func Type3(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type3 =
 func Type4(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type4 = a } }
 func Type5(a string) CallbackFunc    { return func(req *LogAddReq) { req.Type5 = a } }
 func Content(a string) CallbackFunc  { return func(req *LogAddReq) { req.Content = a } }
+func Type1Admin() CallbackFunc       { return Type1("admin") }
+func Type1User() CallbackFunc        { return Type1("user") }
