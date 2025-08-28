@@ -11,23 +11,40 @@
 
 package logger
 
-type (
-	Logger interface {
-		LogInfo
-		LogUserClientIP
-	}
-	LogInfo interface {
-		LogName() (name string)
-		LogFields() (fields FieldSlice)
-	}
-	LogUserClientIP interface {
-		LogUser
-		LogClientIP
-	}
-	LogUser     interface{ LogUser() (userdata Userdata) }
-	LogClientIP interface{ LogClientIP() (clientIP string) }
-	Userdata    struct {
-		UserId   uint
-		UserName string
-	}
-)
+// Logger is an interface combining LogInfo and LogUserClientIP for comprehensive logging.
+type Logger interface {
+	LogInfo
+	LogUserClientIP
+}
+
+// LogInfo defines methods for retrieving log name and fields.
+type LogInfo interface {
+	// LogName returns the name associated with the log entry.
+	LogName() (name string)
+	// LogFields returns a slice of fields for logging.
+	LogFields() (fields FieldSlice)
+}
+
+// LogUserClientIP combines LogUser and LogClientIP interfaces for user and client IP logging.
+type LogUserClientIP interface {
+	LogUser
+	LogClientIP
+}
+
+// LogUser defines a method for retrieving user data for logging.
+type LogUser interface {
+	// LogUser returns the user data associated with the log entry.
+	LogUser() (userdata Userdata)
+}
+
+// LogClientIP defines a method for retrieving the client IP address for logging.
+type LogClientIP interface {
+	// LogClientIP returns the client IP address associated with the log entry.
+	LogClientIP() (clientIP string)
+}
+
+// Userdata represents user information for logging.
+type Userdata struct {
+	UserId   uint   // UserId is the unique identifier of the user.
+	UserName string // UserName is the name of the user.
+}

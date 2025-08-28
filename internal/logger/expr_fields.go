@@ -13,10 +13,20 @@ package logger
 
 import "reflect"
 
+// Ensure exprFields implements the expr interface.
 var _ expr = (*exprFields)(nil)
 
-type exprFields struct{ FieldSlice }
+// exprFields is a struct that wraps a FieldSlice to implement the expr interface.
+type exprFields struct {
+	FieldSlice
+}
 
-func newExprFields(fs FieldSlice) *exprFields { return &exprFields{fs} }
+// newExprFields creates a new exprFields instance with the provided FieldSlice.
+func newExprFields(fs FieldSlice) *exprFields {
+	return &exprFields{fs}
+}
 
-func (fs exprFields) Expr(_ string, _, _ reflect.Value) (values []any) { return []any{fs.Log()} }
+// Expr generates a list of values by calling Log() on the embedded FieldSlice.
+func (fs exprFields) Expr(_ string, _, _ reflect.Value) (values []any) {
+	return []any{fs.Log()}
+}

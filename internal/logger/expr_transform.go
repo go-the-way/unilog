@@ -17,31 +17,30 @@ import (
 	"strings"
 )
 
+// Ensure exprTransform implements the expr interface.
 var _ expr = (*exprTransform)(nil)
 
-type exprTransform struct{ expr0 string }
+// exprTransform is a struct that holds a transformation expression for mapping values.
+type exprTransform struct {
+	expr0 string // expr0 is the transformation mapping (e.g., "1->on|2->off").
+}
 
-func newExprTransform(expr0 string) *exprTransform { return &exprTransform{expr0} }
+// newExprTransform creates a new exprTransform instance with the provided transformation expression.
+func newExprTransform(expr0 string) *exprTransform {
+	return &exprTransform{expr0}
+}
 
-// Expr transform: expr
-//
-// e.g.: transform:1->on|2->off
-//
-// usage:
-//
-//	type logger struct {
-//		Status byte `log:"Status,transform:1->on|2->off`
-//	}
-//
-// values:
-//
-// p0: transformed value
-//
-// p1: original value
+// Expr transforms a value based on a mapping defined in expr0 (e.g., "1->on|2->off").
+// The transformation maps an original value to a new value based on the provided expression.
+// The format string determines the output structure:
+//   - For 2 placeholders (e.g., "%s[%s]"), returns [transformed value].
+//   - For 3 placeholders (e.g., "%s[%v=>%s]"), returns [transformed value, original value].
 func (t *exprTransform) Expr(format string, _, sv reflect.Value) (values []any) {
+	// Split the transformation expression into individual mappings.
 	valS := strings.Split(t.expr0, "|")
 	var m = map[string]any{}
 	for _, val := range valS {
+		// Split each mapping into key and value (e.g., "1->on" into "1" and "on").
 		vv := strings.Split(val, "->")
 		if len(vv) > 1 {
 			k := strings.TrimSpace(vv[0])
@@ -49,24 +48,25 @@ func (t *exprTransform) Expr(format string, _, sv reflect.Value) (values []any) 
 			m[k] = v
 		}
 	}
+
+	// Get the original value and convert it to a string key.
 	svv := sv.Interface()
 	k := fmt.Sprintf("%v", svv)
 	sa := m[k]
+
+	// Count placeholders in the format string to determine the output structure.
 	ftc := strings.Count(format, "%")
 	switch ftc {
 	default:
-		// others error
+		// Invalid number of placeholders, return empty slice.
 		return
 	case 2:
-		// %s[%s]
-		// p0: log name
-		// p1: transformed value
+		// Format expects 2 placeholders (e.g., "%s[%s]").
+		// Returns the transformed value.
 		return []any{sa}
 	case 3:
-		// %s[%v=>%s]
-		// p0: log name
-		// p1: transformed value
-		// p2: original value
+		// Format expects 3 placeholders (e.g., "%s[%v=>%s]").
+		// Returns the transformed value and the original value.
 		return []any{sa, svv}
 	}
 }

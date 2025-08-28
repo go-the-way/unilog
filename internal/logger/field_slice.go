@@ -13,8 +13,10 @@ package logger
 
 import "strings"
 
+// FieldSlice is a slice of Field structs for logging multiple fields.
 type FieldSlice []Field
 
+// Log generates a concatenated string of log entries from all fields in the slice, joined by a separator.
 func (fs FieldSlice) Log() string {
 	var strS []string
 	for _, f := range fs {
@@ -22,5 +24,5 @@ func (fs FieldSlice) Log() string {
 			strS = append(strS, fStr)
 		}
 	}
-	return strings.Join(strS, ",")
+	return strings.Join(strS, fieldJoinSep)
 }

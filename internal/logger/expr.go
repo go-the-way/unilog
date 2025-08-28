@@ -13,6 +13,8 @@ package logger
 
 import "reflect"
 
+// expr defines an interface for evaluating expressions that compare original and new values.
 type expr interface {
+	// Expr generates a list of values based on a format string and the original and new reflect.Values.
 	Expr(format string, ov, sv reflect.Value) (values []any)
 }

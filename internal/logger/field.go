@@ -16,19 +16,24 @@ import (
 	"reflect"
 )
 
+// Field represents a log field with a name, format, expression, and original/new values.
 type Field struct {
-	Name, Format string
-	expr
-	SV, OV reflect.Value
+	Name, Format string        // Name is the field name, Format is the log format string.
+	expr                       // expr is the embedded expression interface for evaluating values.
+	SV, OV       reflect.Value // SV is the new value, OV is the original value.
 }
 
+// log generates a formatted log string based on the field's format and evaluated values.
 func (f Field) log() (str string) {
 	var values []any
-	values = append(values, f.Name)
+	if f.Name != "" {
+		values = append(values, f.Name)
+	}
 	values = append(values, f.eval()...)
 	return fmt.Sprintf(f.Format, values...)
 }
 
+// eval evaluates the field's expression or value to produce a list of log values.
 func (f Field) eval() (values []any) {
 	if f.expr != nil {
 		return f.Expr(f.Format, f.OV, f.SV)
@@ -36,18 +41,16 @@ func (f Field) eval() (values []any) {
 	return []any{f.value()}
 }
 
+// value retrieves the field's value based on its type, handling basic types, arrays/slices, and maps.
 func (f Field) value() (v any) {
 	vk := f.SV.Kind()
 	switch {
 	case vk >= reflect.Bool && vk <= reflect.Float64 || vk == reflect.String || vk == reflect.Struct:
 		return f.SV.Interface()
-
 	case vk == reflect.Array || vk == reflect.Slice:
 		return arrayFunc0(f.SV)
-
 	case vk == reflect.Map:
 		return mapFunc0(f.SV)
 	}
-
 	return
 }

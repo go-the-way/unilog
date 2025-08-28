@@ -16,34 +16,28 @@ import (
 	"strings"
 )
 
+// Ensure exprRef implements the expr interface.
 var _ expr = (*exprRef)(nil)
 
-type exprRef struct{ expr0 string }
+// exprRef is a struct that holds a reference expression string for accessing nested fields.
+type exprRef struct {
+	expr0 string // expr0 is the reference path (e.g., "Ref1.Ref2").
+}
 
-func newExprRef(expr0 string) *exprRef { return &exprRef{expr0} }
+// newExprRef creates a new exprRef instance with the provided reference expression.
+func newExprRef(expr0 string) *exprRef {
+	return &exprRef{expr0}
+}
 
-// Expr ref: expr
-//
-// e.g.: ref:Ref1.Ref2...
-//
-// usage:
-//
-//	type logger struct {
-//		Name1 string `log:"Name1,ref:Ref1.Name"`
-//		Name2 string `log:"Name2,ref:Ref1.Ref11.Name"`
-//		Ref1  struct {
-//			Name  string
-//			Ref11 struct{ Name string }
-//		} `log:"-"`
-//	}
-//
-// values:
-//
-// p0: ref value
-//
-// p1: original value
+// Expr generates a list of values based on a format string and reflect values, resolving a reference path.
+// The reference path (e.g., "Ref1.Ref2") navigates through nested struct fields.
+// The format string determines the output structure:
+//   - For 2 placeholders (e.g., "%s[%s]"), returns [reference value].
+//   - For 3 placeholders (e.g., "%s[%v=>%s]"), returns [reference value, original value].
 func (r *exprRef) Expr(format string, ov, sv reflect.Value) (values []any) {
 	expr0 := r.expr0
+
+	// refValFunc resolves the reference path to extract the target field value.
 	refValFunc := func() (a any) {
 		v := ov
 		if !strings.HasPrefix(expr0, ".") {
@@ -70,21 +64,20 @@ func (r *exprRef) Expr(format string, ov, sv reflect.Value) (values []any) {
 		}
 		return
 	}
+
+	// Count placeholders in the format string to determine the output structure.
 	ftc := strings.Count(format, "%")
 	switch ftc {
 	default:
-		// others error
+		// Invalid number of placeholders, return empty slice.
 		return
 	case 2:
-		// %s[%s]
-		// p0: log name
-		// p1: ref value
+		// Format expects 2 placeholders (e.g., "%s[%s]").
+		// Returns the reference value.
 		return []any{refValFunc()}
 	case 3:
-		// %s[%v=>%s]
-		// p0: log name
-		// p1: ref value
-		// p2: original value
+		// Format expects 3 placeholders (e.g., "%s[%v=>%s]").
+		// Returns the reference value and the original value.
 		return []any{refValFunc(), sv.Interface()}
 	}
 }
