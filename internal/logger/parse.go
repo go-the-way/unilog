@@ -46,7 +46,7 @@ func getSupportedFields(ov reflect.Value, defaultIgnoreS ...bool) (fieldSlice Fi
 				continue
 			}
 
-			if isStruct && logTag == ",inner" {
+			if isStruct && logTag == ",inline" {
 				fieldSlice = append(fieldSlice, getSupportedFields(sv, defaultIgnore)...)
 				continue
 			}
